@@ -52,18 +52,16 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    x,y = action
+    x, y = action
     turn = player(board)
-    updated_baord = copy.deepcopy(board)
-    try:
-        if board[x][y] == EMPTY and x in range(0,3) and y in range(0,3):
-            updated_baord[x][y] = turn
-            print(updated_baord)
-            return updated_baord
-        else:
-            raise ValueError("Invalid Move")
-    except:
+ 
+    if board[x][y] != EMPTY or x not in range(3) or y not in range(3):
         raise ValueError("Invalid Move")
+    
+    updated_board = [row[:] for row in board]
+    updated_board[x][y] = turn
+    
+    return updated_board
 
 def winner(board):
     """
@@ -121,22 +119,27 @@ def minimax(board):
     
 def max_value(board):
     if terminal(board):
-        return utility(board)
+        return utility(board), None
     value = float('-inf')
     optimal_action = None
     for action in actions(board):
-        value = max(value, min_value(result(board, action)))
-        optimal_action = action
-    return value
+        new_value, _ = min_value(result(board, action))
+        if new_value > value:
+            value = new_value
+            optimal_action = action
+    return value, optimal_action
 
 
 def min_value(board):
     if terminal(board):
-        return utility(board)
+        return utility(board), None
     value = float('inf')
+    optimal_action = None
     for action in actions(board):
-        value = min(value, max_value(result(board, action)))  
-    return value
+        new_value, _ = max_value(result(board, action)) 
+        if new_value < value:
+            value = new_value
+            optimal_action = action
+    return value, optimal_action
 
-matrix = [[X, O, X],[X, O, X],[O, X, O]]
-print(winner(matrix))
+
